@@ -17,7 +17,9 @@ fmtname(char *path)
 
   // Return blank-padded name.
   if(strlen(p) >= DIRSIZ)
+  {
     return p;
+  }
   memmove(buf, p, strlen(p));
   memset(buf+strlen(p), ' ', DIRSIZ-strlen(p));
   return buf;
@@ -31,12 +33,12 @@ ls(char *path)
   struct dirent de;
   struct stat st;
 
-  if((fd = open(path, O_RDONLY)) < 0){
+  if((fd = open(path, O_RDONLY)) < 0){ //打开文件
     fprintf(2, "ls: cannot open %s\n", path);
     return;
   }
-
-  if(fstat(fd, &st) < 0){
+ 
+  if(fstat(fd, &st) < 0){ // 获得文件信息
     fprintf(2, "ls: cannot stat %s\n", path);
     close(fd);
     return;
@@ -44,11 +46,11 @@ ls(char *path)
 
   switch(st.type){
   case T_DEVICE:
-  case T_FILE:
+  case T_FILE: //输出文件
     printf("%s %d %d %d\n", fmtname(path), st.type, st.ino, (int) st.size);
     break;
 
-  case T_DIR:
+  case T_DIR://目录
     if(strlen(path) + 1 + DIRSIZ + 1 > sizeof buf){
       printf("ls: path too long\n");
       break;
@@ -57,6 +59,7 @@ ls(char *path)
     p = buf+strlen(buf);
     *p++ = '/';
     while(read(fd, &de, sizeof(de)) == sizeof(de)){
+      
       if(de.inum == 0)
         continue;
       memmove(p, de.name, DIRSIZ);
