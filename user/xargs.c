@@ -38,7 +38,6 @@ int main(int argv,char* argc[]) {
                  p=buff+i+1;
                  wait(0);
             }
-
         }
     }
 }
