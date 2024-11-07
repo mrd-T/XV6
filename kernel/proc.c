@@ -107,7 +107,7 @@ allocpid()
 // and return with p->lock held.
 // If there are no free procs, or a memory allocation fails, return 0.
 static struct proc*
-allocproc(void)
+allocproc(void) //在表中找一个空的进程
 {
   struct proc *p;
 
@@ -295,7 +295,7 @@ fork(void)
     return -1;
   }
   np->sz = p->sz;
-
+  np->TraceMask=p->TraceMask;
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
 

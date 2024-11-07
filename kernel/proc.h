@@ -82,7 +82,7 @@ struct trapframe {
 enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 // Per-process state
-struct proc {
+struct proc {  //进程信息
   struct spinlock lock;
 
   // p->lock must be held when using these:
@@ -104,4 +104,5 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  int TraceMask; 
 };

@@ -33,7 +33,7 @@ kinit()
 
 
 void
-freerange(void *pa_start, void *pa_end)
+freerange(void *pa_start, void *pa_end) //清空
 {
   char *p;
   p = (char*)PGROUNDUP((uint64)pa_start);

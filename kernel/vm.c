@@ -19,7 +19,7 @@ extern char trampoline[]; // trampoline.S
 
 // Make a direct-map page table for the kernel.
 pagetable_t
-kvmmake(void)
+kvmmake(void) // 初始化内核态
 {
   pagetable_t kpgtbl;
 
@@ -44,24 +44,24 @@ kvmmake(void)
   kvmmap(kpgtbl, PLIC, PLIC, 0x4000000, PTE_R | PTE_W);
 
   // map kernel text executable and read-only.
-  kvmmap(kpgtbl, KERNBASE, KERNBASE, (uint64)etext-KERNBASE, PTE_R | PTE_X);
+  kvmmap(kpgtbl, KERNBASE, KERNBASE, (uint64)etext-KERNBASE, PTE_R | PTE_X);//文本带
 
   // map kernel data and the physical RAM we'll make use of.
-  kvmmap(kpgtbl, (uint64)etext, (uint64)etext, PHYSTOP-(uint64)etext, PTE_R | PTE_W);
+  kvmmap(kpgtbl, (uint64)etext, (uint64)etext, PHYSTOP-(uint64)etext, PTE_R | PTE_W); //数据段
 
   // map the trampoline for trap entry/exit to
   // the highest virtual address in the kernel.
   kvmmap(kpgtbl, TRAMPOLINE, (uint64)trampoline, PGSIZE, PTE_R | PTE_X);
 
   // allocate and map a kernel stack for each process.
-  proc_mapstacks(kpgtbl);
+  proc_mapstacks(kpgtbl); //每个进程的
   
   return kpgtbl;
 }
 
 // Initialize the one kernel_pagetable
 void
-kvminit(void)
+kvminit(void)  //初始画内核态
 {
   kernel_pagetable = kvmmake();
 }
@@ -93,7 +93,7 @@ kvminithart()
 //   12..20 -- 9 bits of level-0 index.
 //    0..11 -- 12 bits of byte offset within the page.
 pte_t *
-walk(pagetable_t pagetable, uint64 va, int alloc)
+walk(pagetable_t pagetable, uint64 va, int alloc) //找pte
 {
   if(va >= MAXVA)
     panic("walk");
@@ -108,7 +108,7 @@ walk(pagetable_t pagetable, uint64 va, int alloc)
       }
 #endif
     } else {
-      if(!alloc || (pagetable = (pde_t*)kalloc()) == 0)
+      if(!alloc || (pagetable = (pde_t*)kalloc()) == 0) 
         return 0;
       memset(pagetable, 0, PGSIZE);
       *pte = PA2PTE(pagetable) | PTE_V;
@@ -121,7 +121,7 @@ walk(pagetable_t pagetable, uint64 va, int alloc)
 // or 0 if not mapped.
 // Can only be used to look up user pages.
 uint64
-walkaddr(pagetable_t pagetable, uint64 va)
+walkaddr(pagetable_t pagetable, uint64 va)  //直接找到物理地址
 {
   pte_t *pte;
   uint64 pa;
@@ -145,7 +145,8 @@ walkaddr(pagetable_t pagetable, uint64 va)
 // only used when booting.
 // does not flush TLB or enable paging.
 void
-kvmmap(pagetable_t kpgtbl, uint64 va, uint64 pa, uint64 sz, int perm)
+kvmmap(pagetable_t kpgtbl, uint64 va, uint64 pa, uint64 sz, int perm) //分配地址
+
 {
   if(mappages(kpgtbl, va, sz, pa, perm) != 0)
     panic("kvmmap");
@@ -157,7 +158,7 @@ kvmmap(pagetable_t kpgtbl, uint64 va, uint64 pa, uint64 sz, int perm)
 // Returns 0 on success, -1 if walk() couldn't
 // allocate a needed page-table page.
 int
-mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm)
+mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm) //分配地址
 {
   uint64 a, last;
   pte_t *pte;

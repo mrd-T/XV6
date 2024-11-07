@@ -165,6 +165,7 @@ main(void)
         fprintf(2, "cannot cd %s\n", buf+3);
       continue;
     }
+    // fprintf(2, "cannot cd %s\n", buf);
     if(fork1() == 0)
       runcmd(parsecmd(buf));
     wait(0);

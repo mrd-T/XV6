@@ -503,3 +503,12 @@ sys_pipe(void)
   }
   return 0;
 }
+uint64
+sys_trace(void)
+{
+  int n;
+  argint(0, &n);
+  if(n==-1) return -1;
+  myproc()->TraceMask = n;          // set the TraceMask in proc struct
+  return 0; 
+}
