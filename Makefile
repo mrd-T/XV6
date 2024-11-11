@@ -127,8 +127,10 @@ LDFLAGS = -z max-page-size=4096
 
 $K/kernel: $(OBJS) $(OBJS_KCSAN) $K/kernel.ld $U/initcode
 	$(LD) $(LDFLAGS) -T $K/kernel.ld -o $K/kernel $(OBJS) $(OBJS_KCSAN)
-	$(OBJDUMP) -S $K/kernel > $K/kernel.asm
+	$(OBJDUMP) -S -t $K/kernel > $K/kernel.asm
 	$(OBJDUMP) -t $K/kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $K/kernel.sym
+	$(OBJDUMP) -t -g $K/kernel > $K/kernel_globals.sym
+
 
 $(OBJS): EXTRAFLAG := $(KCSANFLAG)
 
