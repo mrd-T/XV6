@@ -15,7 +15,7 @@
 #include "sleeplock.h"
 #include "file.h"
 #include "fcntl.h"
-
+#include "sysinfo.h"
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
 static int
@@ -392,7 +392,7 @@ sys_mknod(void)
   struct inode *ip;
   char path[MAXPATH];
   int major, minor;
-
+  
   begin_op();
   argint(1, &major);
   argint(2, &minor);
@@ -512,3 +512,20 @@ sys_trace(void)
   myproc()->TraceMask = n;          // set the TraceMask in proc struct
   return 0; 
 }
+uint64
+sys_info(void)
+{
+  uint64 UserSysinfo;
+  struct sysinfo KernelSysinfo;
+  argaddr(0, &UserSysinfo);
+  if(UserSysinfo==-1) return -1;
+  KernelSysinfo.freemem = getfsize();    // 统计空闲内存的量
+  KernelSysinfo.nproc = getfproc();             // 统计状态不是UNUSED的进程数量
+
+  /* 将sysinfo结构体拷贝回用户态下 */
+  struct proc *p = myproc(); 
+  if(copyout(p->pagetable, UserSysinfo, (char*)&KernelSysinfo, sizeof(struct sysinfo)) < 0)
+    return -1;
+  return 0;
+}
+

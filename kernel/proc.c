@@ -57,7 +57,21 @@ procinit(void)
       p->kstack = KSTACK((int) (p - proc));
   }
 }
+int getfproc()
+{
+  int cnt=0;
+  struct proc *p;
 
+  for(p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+    if(p->state != UNUSED) {
+      // goto found;
+      cnt++;
+    } 
+    release(&p->lock);
+  }
+  return cnt;
+}
 // Must be called with interrupts disabled,
 // to prevent race with process being moved
 // to a different CPU.
@@ -174,7 +188,7 @@ freeproc(struct proc *p)
 // Create a user page table for a given process, with no user memory,
 // but with trampoline and trapframe pages.
 pagetable_t
-proc_pagetable(struct proc *p)
+proc_pagetable(struct proc *p) //为进程创建页表
 {
   pagetable_t pagetable;
 
